@@ -1,4 +1,3 @@
-// Source code is decompiled from a .class file using FernFlower decompiler.
 package com.bean;
 
 import java.util.Date;
@@ -11,8 +10,7 @@ public class ExpenseBean {
    private Date expenseDate;
    private String description;
 
-   public ExpenseBean() {
-   }
+   public ExpenseBean() {}
 
    public ExpenseBean(String username, double amount, String category, Date expenseDate, String description) {
       this.username = username;
@@ -22,51 +20,16 @@ public class ExpenseBean {
       this.description = description;
    }
 
-   public int getId() {
-      return this.id;
-   }
-
-   public void setId(int id) {
-      this.id = id;
-   }
-
-   public String getUsername() {
-      return this.username;
-   }
-
-   public void setUsername(String username) {
-      this.username = username;
-   }
-
-   public double getAmount() {
-      return this.amount;
-   }
-
-   public void setAmount(double amount) {
-      this.amount = amount;
-   }
-
-   public String getCategory() {
-      return this.category;
-   }
-
-   public void setCategory(String category) {
-      this.category = category;
-   }
-
-   public Date getExpenseDate() {
-      return this.expenseDate;
-   }
-
-   public void setExpenseDate(Date expenseDate) {
-      this.expenseDate = expenseDate;
-   }
-
-   public String getDescription() {
-      return this.description;
-   }
-
-   public void setDescription(String description) {
-      this.description = description;
-   }
+   public int getId() { return id; }
+   public void setId(int id) { this.id = id; }
+   public String getUsername() { return username; }
+   public void setUsername(String username) { this.username = username; }
+   public double getAmount() { return amount; }
+   public void setAmount(double amount) { this.amount = amount; }
+   public String getCategory() { return category; }
+   public void setCategory(String category) { this.category = category; }
+   public Date getExpenseDate() { return expenseDate; }
+   public void setExpenseDate(Date expenseDate) { this.expenseDate = expenseDate; }
+   public String getDescription() { return description; }
+   public void setDescription(String description) { this.description = description; }
 }

@@ -1,44 +1,22 @@
-// Source code is decompiled from a .class file using FernFlower decompiler.
 package com.bean;
 
 public class UserBean {
-   private int id;
-   private String username;
-   private String password;
-   private String email;
+    private String username;
+    private String password;
+    private String email;
+    private double monthlyLimit;
 
-   public UserBean() {
-   }
+    public UserBean() {}
 
-   public int getId() {
-      return this.id;
-   }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-   public void setId(int id) {
-      this.id = id;
-   }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-   public String getUsername() {
-      return this.username;
-   }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-   public void setUsername(String username) {
-      this.username = username;
-   }
-
-   public String getPassword() {
-      return this.password;
-   }
-
-   public void setPassword(String password) {
-      this.password = password;
-   }
-
-   public String getEmail() {
-      return this.email;
-   }
-
-   public void setEmail(String email) {
-      this.email = email;
-   }
+    public double getMonthlyLimit() { return monthlyLimit; }
+    public void setMonthlyLimit(double monthlyLimit) { this.monthlyLimit = monthlyLimit; }
 }

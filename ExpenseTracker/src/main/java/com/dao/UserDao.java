@@ -1,94 +1,28 @@
 package com.dao;
 
 import com.bean.UserBean;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Properties;
+import java.sql.*;
 
-/**
- * DAO class for User management.
- */
 public class UserDao {
-
-    private static String JDBC_URL;
-    private static String JDBC_USERNAME;
-    private static String JDBC_PASSWORD;
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/expense_tracker";
+    private static final String JDBC_USERNAME = "root";
+    private static final String JDBC_PASSWORD = "9835";
 
     static {
         try {
-            // Load MySQL Driver
             Class.forName("com.mysql.cj.jdbc.Driver");
-
-            // Load DB credentials from config.properties
-            Properties props = new Properties();
-            FileInputStream fis = new FileInputStream("config.properties"); // file in project root
-            props.load(fis);
-
-            JDBC_URL = props.getProperty("DB_URL");
-            JDBC_USERNAME = props.getProperty("DB_USER");
-            JDBC_PASSWORD = props.getProperty("DB_PASS");
-
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println("⚠️ Could not load config.properties. Please make sure it exists.");
             e.printStackTrace();
         }
     }
 
-    public UserDao() {}
-
-    /**
-     * Returns a new database connection.
-     */
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD);
     }
 
-    /**
-     * Registers a new user if the username and email are not already taken.
-     */
-    public boolean registerUser(UserBean user) throws SQLException {
-        String checkSql = "SELECT username FROM users WHERE username = ? OR email = ?";
-        String insertSql = "INSERT INTO users(username, password, email) VALUES (?, ?, ?)";
-
-        try (Connection con = getConnection();
-             PreparedStatement checkStmt = con.prepareStatement(checkSql)) {
-
-            checkStmt.setString(1, user.getUsername());
-            checkStmt.setString(2, user.getEmail());
-
-            try (ResultSet rs = checkStmt.executeQuery()) {
-                if (rs.next()) {
-                    // User or email already exists
-                    return false;
-                }
-            }
-
-            try (PreparedStatement insertStmt = con.prepareStatement(insertSql)) {
-                insertStmt.setString(1, user.getUsername());
-                insertStmt.setString(2, user.getPassword());
-                insertStmt.setString(3, user.getEmail());
-                insertStmt.executeUpdate();
-                return true;
-            }
-        }
-    }
-
-    /**
-     * Attempts user login and returns UserBean if successful, otherwise null.
-     */
     public UserBean loginUser(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-
-        try (Connection con = getConnection();
-             PreparedStatement pst = con.prepareStatement(sql)) {
-
+        String sql = "SELECT username, password, email, monthly_limit FROM users WHERE username = ? AND password = ?";
+        try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
             pst.setString(1, username);
             pst.setString(2, password);
 
@@ -96,8 +30,9 @@ public class UserDao {
                 if (rs.next()) {
                     UserBean user = new UserBean();
                     user.setUsername(rs.getString("username"));
+                    user.setPassword(rs.getString("password"));
                     user.setEmail(rs.getString("email"));
-                    // For security, avoid returning password
+                    user.setMonthlyLimit(rs.getDouble("monthly_limit"));
                     return user;
                 }
             }
@@ -105,17 +40,53 @@ public class UserDao {
         return null;
     }
 
-    /**
-     * Deletes a user by username.
-     */
-    public void deleteUserByUsername(String username) throws SQLException {
-        String sql = "DELETE FROM users WHERE username = ?";
+    public boolean updateMonthlyLimit(String username, double limit) throws SQLException {
+        String sql = "UPDATE users SET monthly_limit = ? WHERE username = ?";
+        try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setDouble(1, limit);
+            pst.setString(2, username);
+            int rowsUpdated = pst.executeUpdate();
+            return rowsUpdated > 0;
+        }
+    }
 
-        try (Connection con = getConnection();
-             PreparedStatement pst = con.prepareStatement(sql)) {
-
+    public double getMonthlyLimitByUsername(String username) throws SQLException {
+        double monthlyLimit = 0.0;
+        String sql = "SELECT monthly_limit FROM users WHERE username = ?";
+        try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
             pst.setString(1, username);
-            pst.executeUpdate();
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    monthlyLimit = rs.getDouble("monthly_limit");
+                }
+            }
+        }
+        return monthlyLimit;
+    }
+
+    public boolean registerUser(UserBean user) throws SQLException {
+        // Check if username or email already exists
+        String checkSql = "SELECT COUNT(*) FROM users WHERE username = ? OR email = ?";
+        try (Connection con = getConnection(); PreparedStatement pstCheck = con.prepareStatement(checkSql)) {
+            pstCheck.setString(1, user.getUsername());
+            pstCheck.setString(2, user.getEmail());
+            try (ResultSet rs = pstCheck.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    // Username or email already exists
+                    return false;
+                }
+            }
+        }
+
+        // Insert new user
+        String insertSql = "INSERT INTO users (username, password, email, monthly_limit) VALUES (?, ?, ?, ?)";
+        try (Connection con = getConnection(); PreparedStatement pstInsert = con.prepareStatement(insertSql)) {
+            pstInsert.setString(1, user.getUsername());
+            pstInsert.setString(2, user.getPassword());
+            pstInsert.setString(3, user.getEmail());
+            pstInsert.setDouble(4, user.getMonthlyLimit());
+            int inserted = pstInsert.executeUpdate();
+            return inserted > 0;
         }
     }
 }

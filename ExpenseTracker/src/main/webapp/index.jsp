@@ -16,7 +16,7 @@
 
         if (user != null) {
             session.setAttribute("username", user.getUsername());
-            session.setAttribute("userId", user.getId());  // make sure UserBean has getId()
+           // session.setAttribute("userId", user.getId());  // make sure UserBean has getId()
             response.sendRedirect("dashboard.jsp");
             return;
         } else if (error == null) {
