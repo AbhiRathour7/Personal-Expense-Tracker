@@ -6,7 +6,7 @@ import java.sql.*;
 public class UserDao {
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/expense_tracker";
     private static final String JDBC_USERNAME = "root";
-    private static final String JDBC_PASSWORD = "password";
+    private static final String JDBC_PASSWORD = "9835";
 
     static {
         try {
